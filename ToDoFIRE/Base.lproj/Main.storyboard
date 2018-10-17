@@ -13,8 +13,8 @@
         <!--Login View-->
         <scene sceneID="neY-Ux-Vzh">
             <objects>
-                <viewController id="mXt-Ko-s7e" customClass="LoginView" customModule="ToDo_FIRE" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="ZEV-Qk-Ooq">
+                <viewController id="mXt-Ko-s7e" customClass="LoginView" customModule="ToDoFIRE" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="ZEV-Qk-Ooq" customClass="UIScrollView">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
@@ -44,13 +44,13 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="295" height="30"/>
                                                 <nil key="textColor"/>
                                                 <fontDescription key="fontDescription" name="SinhalaSangamMN" family="Sinhala Sangam MN" pointSize="17"/>
-                                                <textInputTraits key="textInputTraits"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" keyboardAppearance="alert"/>
                                             </textField>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="31q-MG-kyH">
                                                 <rect key="frame" x="0.0" y="40" width="295" height="30"/>
                                                 <nil key="textColor"/>
                                                 <fontDescription key="fontDescription" name="SinhalaSangamMN" family="Sinhala Sangam MN" pointSize="17"/>
-                                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                                                <textInputTraits key="textInputTraits" keyboardAppearance="alert" secureTextEntry="YES"/>
                                             </textField>
                                         </subviews>
                                         <constraints>
@@ -72,7 +72,6 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="onLoginClick:" destination="mXt-Ko-s7e" eventType="touchUpInside" id="uJn-kc-bRI"/>
-                                                    <segue destination="Jdw-Eb-uUc" kind="show" identifier="tasksSegue" id="nm3-Tz-C7b"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="09f-wA-uJa">
@@ -115,6 +114,7 @@
                         <outlet property="email_TF" destination="H6u-fN-Gek" id="712-dT-jaU"/>
                         <outlet property="pass_TF" destination="31q-MG-kyH" id="TZ3-zT-byb"/>
                         <outlet property="warning_TF" destination="3ih-uu-nx6" id="coD-UM-1B3"/>
+                        <segue destination="Jdw-Eb-uUc" kind="show" identifier="gotoTasks" id="mgH-zo-3Cs"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="25U-gj-BSG" sceneMemberID="firstResponder"/>
@@ -124,7 +124,7 @@
         <!--Tasks-->
         <scene sceneID="HlW-Mx-zot">
             <objects>
-                <viewController id="A7I-Ub-cSi" customClass="TasksView" customModule="ToDo_FIRE" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="A7I-Ub-cSi" customClass="TasksView" customModule="ToDoFIRE" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="toc-Og-Gok">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -161,6 +161,11 @@
                         <viewLayoutGuide key="safeArea" id="s7K-vH-dq2"/>
                     </view>
                     <navigationItem key="navigationItem" title="Tasks" id="4LZ-SG-VGg">
+                        <barButtonItem key="leftBarButtonItem" title="Logout" id="5T4-gm-cPC">
+                            <connections>
+                                <action selector="onLogoutClick:" destination="A7I-Ub-cSi" id="Tn1-vE-7WV"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="kFO-gZ-h8g">
                             <connections>
                                 <action selector="onPlusClick:" destination="A7I-Ub-cSi" id="Dpj-Fk-GIm"/>

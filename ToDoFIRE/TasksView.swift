@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
@@ -24,8 +25,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return 5
-		
 	}
+	
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "my_cell", for: indexPath)
@@ -42,4 +43,39 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		
 	}
 	
+	@IBAction func onLogoutClick(_ sender: UIBarButtonItem) {
+		do {
+			try Auth.auth().signOut()
+		}
+		catch {
+			print(error.localizedDescription)
+		}
+		dismiss(animated: true, completion: nil)
+	}
+	
+	
+	
+	
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
