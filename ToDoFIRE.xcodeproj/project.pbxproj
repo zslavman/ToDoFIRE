@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5632B7D12178DD5F00FB3421 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5632B7D02178DD5F00FB3421 /* Task.swift */; };
+		5632B7D32178DD7100FB3421 /* UserCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5632B7D22178DD7100FB3421 /* UserCustom.swift */; };
 		5673E1E721779F700046A9DC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5673E1E621779F700046A9DC /* AppDelegate.swift */; };
 		5673E1EC21779F700046A9DC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5673E1EA21779F700046A9DC /* Main.storyboard */; };
 		5673E1EE21779F700046A9DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5673E1ED21779F700046A9DC /* Assets.xcassets */; };
@@ -19,6 +21,8 @@
 
 /* Begin PBXFileReference section */
 		2F203E16E7A0B0BC253FDAF5 /* Pods_ToDoFIRE.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ToDoFIRE.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5632B7D02178DD5F00FB3421 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		5632B7D22178DD7100FB3421 /* UserCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCustom.swift; sourceTree = "<group>"; };
 		5673E1E321779F700046A9DC /* ToDoFIRE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoFIRE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5673E1E621779F700046A9DC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5673E1EB21779F700046A9DC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -44,6 +48,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5632B7D42178DD8200FB3421 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5632B7D02178DD5F00FB3421 /* Task.swift */,
+				5632B7D22178DD7100FB3421 /* UserCustom.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		5673E1DA21779F700046A9DC = {
 			isa = PBXGroup;
 			children = (
@@ -68,6 +81,7 @@
 				5673E1EA21779F700046A9DC /* Main.storyboard */,
 				5673E1F92177A05F0046A9DC /* LoginView.swift */,
 				5673E1FA2177A05F0046A9DC /* TasksView.swift */,
+				5632B7D42178DD8200FB3421 /* Models */,
 				5673E1F821779F8D0046A9DC /* Supporting Files */,
 			);
 			path = ToDoFIRE;
@@ -177,15 +191,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-ToDoFIRE-checkManifestLockResult.txt",
 			);
@@ -199,8 +209,6 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-ToDoFIRE/Pods-ToDoFIRE-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
@@ -209,8 +217,6 @@
 				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
@@ -229,8 +235,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5632B7D12178DD5F00FB3421 /* Task.swift in Sources */,
 				5673E1FB2177A05F0046A9DC /* LoginView.swift in Sources */,
 				5673E1FC2177A05F0046A9DC /* TasksView.swift in Sources */,
+				5632B7D32178DD7100FB3421 /* UserCustom.swift in Sources */,
 				5673E1E721779F700046A9DC /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

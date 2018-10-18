@@ -17,10 +17,16 @@ class LoginView: UIViewController {
 	@IBOutlet weak var email_TF: UITextField!
 	@IBOutlet weak var pass_TF: UITextField!
 	private let SEGUE_IDENTIFIER = "gotoTasks"
+	private var ref:DatabaseReference!
+	
+	@IBOutlet weak var loginBttn: UIButton!
+	@IBOutlet weak var registerBttn: UIButton!
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		
+		ref = Database.database().reference(withPath: "users")
 		
 		// слушаем появление клавиатуры
 		NotificationCenter.default.addObserver(self, selector: #selector(kbDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
@@ -38,14 +44,17 @@ class LoginView: UIViewController {
 				self?.performSegue(withIdentifier: (self?.SEGUE_IDENTIFIER)!, sender: nil)
 			}
 		}
+		
+		loginBttn.layer.cornerRadius = 7
 	}
+		
 	
 	
 	
 	// перед тем как вью отобразится на экране
 	override func viewWillAppear(_ animated: Bool) {
-		email_TF.text = ""
-		pass_TF.text = ""
+		email_TF.text = "z@ukr.net"
+		pass_TF.text = "1234569888"
 	}
 
 	
@@ -77,10 +86,15 @@ class LoginView: UIViewController {
 		}
 		
 		// логинимся
+		blockButtons()
 		Auth.auth().signIn(withEmail: email, password: password) {
 			[weak self] (user, error) in
+			
+			self?.blockButtons(unblock: true)
 			if error != nil {
-				self?.showWarningLabel(str: "Error occured")
+				let strErr = error!.localizedDescription
+				self?.showWarningLabel(str: strErr)
+				print(strErr)
 				return
 			}
 			
@@ -91,22 +105,8 @@ class LoginView: UIViewController {
 			// если нет пользователя
 			self?.showWarningLabel(str: "User not found")
 		}
-		
 	}
 	
-
-	
-	private func showWarningLabel(str:String){
-		warning_TF.text = str
-		UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseInOut], animations: {
-			[weak self] in
-			self?.warning_TF.alpha = 1
-		}) {
-			[weak self] (complete) in
-			self?.warning_TF.alpha = 0
-		}
-		
-	}
 	
 	
 	
@@ -120,23 +120,100 @@ class LoginView: UIViewController {
 				return
 		}
 		
+		blockButtons()
 		Auth.auth().createUser(withEmail: email, password: password) {
-			(user, error) in // "список захвата"
-			if error == nil{
-				if user != nil {
-					// здесь будет пусто, т.к. после регистрации переходить никуда не нужно
-					
-				}
-				else {
-					print("пользователь не создан")
-				}
+			[weak self] (authResult, error) in // "список захвата"
+			
+			self?.blockButtons(unblock: true)
+			// продолжаем, только если есть юзер и нет ошибок
+			guard let user = authResult?.user, error == nil else {
+				let strErr = error!.localizedDescription
+				print(strErr)
+				self?.showWarningLabel(str: strErr)
+				return
 			}
-			else {
-				print(error?.localizedDescription ?? "что-то пошло не так")
+			// записываем в юзера его емайл
+			let userRef = self?.ref.child(user.uid)
+			userRef?.setValue(["email": user.email])
+		}
+	}
+	
+	
+	
+	
+
+	
+	/// Показывает ошибку, если что-то пошло не так
+	///
+	/// - Parameter str: текст ошибки
+	private func showWarningLabel(str:String){
+		// чистим анимацию если уже запущена
+		warning_TF.layer.removeAllAnimations()
+		warning_TF.alpha = 0
+		
+		warning_TF.text = str
+		
+		
+		
+		let animator = UIViewPropertyAnimator(duration: 0.5, curve: .linear) {
+			self.warning_TF.alpha = 1
+		}
+		animator.startAnimation()
+		animator.addCompletion {
+			(animPosition) in
+			if animPosition == .end {
+				// Эта хрень НЕ работает!!!!!
+				// animator.isReversed = true
+				// animator.startAnimation(afterDelay: 2)
+				let rewind = UIViewPropertyAnimator(duration: 0.5, curve: .linear){
+					self.warning_TF.alpha = 0
+				}
+				rewind.startAnimation(afterDelay: 2)
 			}
 		}
 		
+		// Эта хрень НЕ работает!!!!!
+		// let animator = UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.5, delay: 0, options: [.curveEaseInOut, .autoreverse], animations:{
+			// self.warning_TF.alpha = 1
+			// UIView.setAnimationRepeatAutoreverses(true)
+		// })
+		
+		// У этой хрени нет плавного затухания + ее невозможно остановить!!
+//		UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseInOut], animations: {
+//			[weak self] in
+//			self?.warning_TF.alpha = 1
+//		}) {
+//			[weak self] (complete) in
+//			self?.warning_TF.alpha = 0
+//		}
+		
 	}
+	
+
+	
+	
+	/// Блокировка/разблокировка кнопок Регистрация и Вход
+	///
+	/// - Parameter unblock: true - разблокировка
+	private func blockButtons(unblock:Bool = false){
+		
+		if unblock{
+			loginBttn.isEnabled = true
+			loginBttn.alpha = 1
+			registerBttn.isEnabled = true
+			registerBttn.alpha = 1
+		}
+		else{
+			loginBttn.isEnabled = false
+			loginBttn.alpha = 0.5
+			registerBttn.isEnabled = false
+			registerBttn.alpha = 0.5
+		}
+	}
+	
+	
+	
+	
 	
 	
 	

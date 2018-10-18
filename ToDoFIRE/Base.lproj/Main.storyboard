@@ -19,26 +19,27 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="lLK-zW-WSE">
-                                <rect key="frame" x="40" y="172.5" width="295" height="342"/>
+                                <rect key="frame" x="40" y="163.5" width="295" height="360"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="Xtp-oz-UyM" userLabel="Header">
-                                        <rect key="frame" x="55.5" y="0.0" width="184" height="88"/>
+                                        <rect key="frame" x="29.5" y="0.0" width="236.5" height="106"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ToDoFIRE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bNB-tu-iBA">
-                                                <rect key="frame" x="0.0" y="0.0" width="184" height="40"/>
+                                                <rect key="frame" x="26" y="0.0" width="184" height="40"/>
                                                 <fontDescription key="fontDescription" name="TamilSangamMN" family="Tamil Sangam MN" pointSize="40"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User does not exists" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3ih-uu-nx6">
-                                                <rect key="frame" x="16" y="70" width="152" height="18"/>
+                                            <label autoresizesSubviews="NO" opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User does not exists User does not exists" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999999999999996" translatesAutoresizingMaskIntoConstraints="NO" id="3ih-uu-nx6">
+                                                <rect key="frame" x="0.0" y="70" width="236.5" height="36"/>
                                                 <fontDescription key="fontDescription" name="TamilSangamMN" family="Tamil Sangam MN" pointSize="18"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="4Oo-s7-dpp" userLabel="Email_Password">
-                                        <rect key="frame" x="0.0" y="138" width="295" height="70"/>
+                                        <rect key="frame" x="0.0" y="156" width="295" height="70"/>
                                         <subviews>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="H6u-fN-Gek">
                                                 <rect key="frame" x="0.0" y="0.0" width="295" height="30"/>
@@ -61,7 +62,7 @@
                                         </constraints>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="eji-Vn-NR8" userLabel="Login_Register">
-                                        <rect key="frame" x="40" y="258" width="215" height="84"/>
+                                        <rect key="frame" x="40" y="276" width="215" height="84"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ke0-Uy-CDq">
                                                 <rect key="frame" x="0.0" y="0.0" width="215" height="35"/>
@@ -112,7 +113,9 @@
                     </view>
                     <connections>
                         <outlet property="email_TF" destination="H6u-fN-Gek" id="712-dT-jaU"/>
+                        <outlet property="loginBttn" destination="Ke0-Uy-CDq" id="cuU-09-bSl"/>
                         <outlet property="pass_TF" destination="31q-MG-kyH" id="TZ3-zT-byb"/>
+                        <outlet property="registerBttn" destination="09f-wA-uJa" id="sEm-Qw-ce1"/>
                         <outlet property="warning_TF" destination="3ih-uu-nx6" id="coD-UM-1B3"/>
                         <segue destination="Jdw-Eb-uUc" kind="show" identifier="gotoTasks" id="mgH-zo-3Cs"/>
                     </connections>
