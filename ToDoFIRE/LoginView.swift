@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-// для организации скрола нужно в сторибоарде написать что вьюшкой управляет UIScrollView
+// для организации скрола нужно в сторибоарде написать что вьюшкой управляет класс UIScrollView
 class LoginView: UIViewController {
 
 	
@@ -72,8 +72,11 @@ class LoginView: UIViewController {
 	}
 
 	@objc private func kbDidHide(){
-		(self.view as! UIScrollView).contentSize = CGSize(width: self.view.bounds.width, height: self.view.bounds.height)
+		UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
+			(self.view as! UIScrollView).contentSize = CGSize(width: self.view.bounds.width, height: self.view.bounds.height)
+		}, completion: nil)
 	}
+	
 	
 	
 	
@@ -89,12 +92,12 @@ class LoginView: UIViewController {
 			return
 		}
 		
-		// логинимся
 		blockButtons()
 		
 		// удаляем слушатель автозахода, т.к. при авторизации будет двойной вход
 		Auth.auth().removeStateDidChangeListener(authListener)
 		
+		// логинимся
 		Auth.auth().signIn(withEmail: email, password: password) {
 			[weak self] (user, error) in
 			self?.blockButtons(unblock: true)
@@ -166,8 +169,6 @@ class LoginView: UIViewController {
 		
 		warning_TF.text = str
 		
-		
-		
 		let animator = UIViewPropertyAnimator(duration: 0.5, curve: .linear) {
 			self.warning_TF.alpha = 1
 		}
@@ -226,21 +227,55 @@ class LoginView: UIViewController {
 	
 	
 	
+}
+
+
+
+
+
+
+extension UIScrollView {
 	
+	// способ хранить переменную в расширении
+	private struct AssociatedKeys {
+		static var startTouchPosition:CGPoint = .zero
+	}
 	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if let touch = touches.first {
-			let position = touch.location(in: self.view as! UIScrollView)
-			print(position)
+	private var point: CGPoint? {
+		get {
+			return objc_getAssociatedObject(self, &AssociatedKeys.startTouchPosition) as? CGPoint
 		}
-		
+		set {
+			if let newValue = newValue {
+				//objc_setAssociatedObject(<#T##object: Any##Any#>, <#T##key: UnsafeRawPointer##UnsafeRawPointer#>, <#T##value: Any?##Any?#>, <#T##policy: objc_AssociationPolicy##objc_AssociationPolicy#>)
+				objc_setAssociatedObject(self, &AssociatedKeys.startTouchPosition, newValue as CGPoint?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+			}
+		}
 	}
 	
 	
 	
+	override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if let touch = touches.first {
+			let position = touch.location(in: self)
+			point = position
+			print(position)
+		}
+	}
 	
 	
+	
+	override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if let touch = touches.first {
+			let position = touch.location(in: self)
+			if position == point {
+				endEditing(true)
+				point = .zero
+			}
+		}
+	}
 }
+
 
 
 
