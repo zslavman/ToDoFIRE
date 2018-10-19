@@ -31,30 +31,86 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		ref = Database.database().reference(withPath: "users") 	// добрались до юзеров в БД
 		ref = ref.child(String(user.uid)) 						// добрались до конкретного(текущего) юзера
 		ref = ref.child("tasks") 								// добрались до таска
-		
 	}
 	
+	
+	
+	// по документации Firebase наблюдателей изменения данных в базе нужно ставить именно в этом методе
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		
+		ref.observe(.value) {
+			[weak self] (snapshot) in
+			
+			var tempTasks:[Task] = []
+			
+			for item in snapshot.children{
+				let task = Task(snapshot: item as! DataSnapshot)
+				tempTasks.append(task)
+			}
+			
+			self?.tasks = tempTasks
+			self?.tableView_user.reloadData()
+		}
+	}
 	
 	
 
 	
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return 5
+		return tasks.count
 	}
-	
 	
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "my_cell", for: indexPath)
 		
 		cell.backgroundColor = .clear
-		cell.textLabel?.text = "This is cell No \(indexPath.row)"
+		cell.textLabel?.text = tasks[indexPath.row].title
 		cell.textLabel?.textColor = .white
+		
+		toggleComplete(cell, isCompleted: tasks[indexPath.row].completed)
 		
 		return cell
 	}
     
 
+	
+	// редактирование (удаление ячейки таблицы)
+	func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+		return true
+	}
+	func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+		if editingStyle == .delete {
+			let task = tasks[indexPath.row]
+			task.ref?.removeValue()
+		}
+	}
+	
+	
+	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		// получаем ячейку по которой кликнули
+		guard let cell = tableView_user.cellForRow(at: indexPath) else { return }
+		let task = tasks[indexPath.row]
+		let isCompleted = !task.completed
+		
+		// рисуем галочку
+		toggleComplete(cell, isCompleted: isCompleted)
+		// передаем изменения в БД Firebase
+		task.ref?.updateChildValues(["completed": isCompleted])
+	}
+	
+	
+	
+	private func toggleComplete(_ cell:UITableViewCell, isCompleted:Bool){
+		cell.accessoryType = isCompleted ? .checkmark : .none
+	}
+	
+	
+	
+	
+	
+	
 	@IBAction func onPlusClick(_ sender: UIBarButtonItem) {
 		
 		let alertController = UIAlertController(title: "New Task", message: "Add new task", preferredStyle: .alert)
@@ -65,7 +121,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 			guard let tf = alertController.textFields?.first, tf.text != "" else { return }
 			
 			// создаем адрес задачи
-			let task = Task(title: tf.text!, userID: (self?.user.uid)!, email: (self?.user.email)!)
+			let task = Task(title: tf.text!, userID: (self?.user.uid)!)
 			
 			// создаем саму задачу
 			let taskRef = self?.ref.child(task.title.lowercased()) // продолжение углубления в структуру данных БД (см. строку 29)
@@ -96,6 +152,13 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	}
 	
 	
+	
+	
+	override func viewWillDisappear(_ animated: Bool) {
+		super.viewWillDisappear(animated)
+		
+		ref.removeAllObservers()
+	}
 	
 	
 	

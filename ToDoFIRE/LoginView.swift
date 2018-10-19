@@ -47,14 +47,14 @@ class LoginView: UIViewController {
 		
 		loginBttn.layer.cornerRadius = 7
 	}
-		
+	
 	
 	
 	
 	// перед тем как вью отобразится на экране
 	override func viewWillAppear(_ animated: Bool) {
 		email_TF.text = "z@ukr.net"
-		pass_TF.text = "1234569888"
+		pass_TF.text = "123456"
 	}
 
 	
@@ -168,7 +168,7 @@ class LoginView: UIViewController {
 				let rewind = UIViewPropertyAnimator(duration: 0.5, curve: .linear){
 					self.warning_TF.alpha = 0
 				}
-				rewind.startAnimation(afterDelay: 2)
+				rewind.startAnimation(afterDelay: 3)
 			}
 		}
 		

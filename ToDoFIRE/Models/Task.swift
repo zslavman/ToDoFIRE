@@ -20,7 +20,7 @@ struct Task {
 	
 	
 	// при создании запроса
-	init(title:String, userID:String, email:String) {
+	init(title:String, userID:String) {
 		self.title = title
 		self.userID = userID
 		self.ref = nil
