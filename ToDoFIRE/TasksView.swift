@@ -39,6 +39,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		
+		guard let ref = ref else { return }
+		
 		ref.observe(.value) {
 			[weak self] (snapshot) in
 			
@@ -67,7 +69,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		
 		cell.backgroundColor = .clear
 		cell.textLabel?.text = tasks[indexPath.row].title
-		cell.textLabel?.textColor = .white
+		cell.textLabel?.textColor = #colorLiteral(red: 0.2, green: 0.5607843137, blue: 0.9882352941, alpha: 1)
 		
 		toggleComplete(cell, isCompleted: tasks[indexPath.row].completed)
 		

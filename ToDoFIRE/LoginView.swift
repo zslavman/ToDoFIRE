@@ -22,6 +22,8 @@ class LoginView: UIViewController {
 	@IBOutlet weak var loginBttn: UIButton!
 	@IBOutlet weak var registerBttn: UIButton!
 	
+	private var authListener:AuthStateDidChangeListenerHandle!
+	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -38,7 +40,7 @@ class LoginView: UIViewController {
 		 warning_TF.alpha = 0
 		
 		// чтоб не вводить логин и пароль в след. раз, проверяем не изменился ли пользователь
-		Auth.auth().addStateDidChangeListener {
+		authListener = Auth.auth().addStateDidChangeListener {
 			[weak self] (auth, user) in
 			if user != nil{
 				self?.performSegue(withIdentifier: (self?.SEGUE_IDENTIFIER)!, sender: nil)
@@ -47,6 +49,7 @@ class LoginView: UIViewController {
 		
 		loginBttn.layer.cornerRadius = 7
 	}
+	
 	
 	
 	
@@ -67,9 +70,7 @@ class LoginView: UIViewController {
 		// чтоб индикатор скрола не заходил за клавиатуру
 		(self.view as! UIScrollView).scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.size.height, right: 0)
 	}
-	
-	
-	
+
 	@objc private func kbDidHide(){
 		(self.view as! UIScrollView).contentSize = CGSize(width: self.view.bounds.width, height: self.view.bounds.height)
 	}
@@ -79,6 +80,9 @@ class LoginView: UIViewController {
 	
 
 	@IBAction func onLoginClick(_ sender: UIButton) {
+		
+		view.endEditing(true) // прячем клавиатуру
+		
 		guard let email = email_TF.text, let password = pass_TF.text, email != "", password != ""
 		else {
 			showWarningLabel(str: "Incorrect info")
@@ -87,9 +91,12 @@ class LoginView: UIViewController {
 		
 		// логинимся
 		blockButtons()
+		
+		// удаляем слушатель автозахода, т.к. при авторизации будет двойной вход
+		Auth.auth().removeStateDidChangeListener(authListener)
+		
 		Auth.auth().signIn(withEmail: email, password: password) {
 			[weak self] (user, error) in
-			
 			self?.blockButtons(unblock: true)
 			if error != nil {
 				let strErr = error!.localizedDescription
@@ -111,8 +118,11 @@ class LoginView: UIViewController {
 	
 	
 	
+	
 	// будем регистрировать пользователя в этой же вьюшке
 	@IBAction func onRegisterClick(_ sender: UIButton) {
+		
+		view.endEditing(true)
 		
 		guard let email = email_TF.text, let password = pass_TF.text, email != "", password != ""
 			else {
@@ -121,6 +131,9 @@ class LoginView: UIViewController {
 		}
 		
 		blockButtons()
+		
+		Auth.auth().removeStateDidChangeListener(authListener)
+		
 		Auth.auth().createUser(withEmail: email, password: password) {
 			[weak self] (authResult, error) in // "список захвата"
 			
@@ -213,6 +226,15 @@ class LoginView: UIViewController {
 	
 	
 	
+	
+	
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if let touch = touches.first {
+			let position = touch.location(in: self.view as! UIScrollView)
+			print(position)
+		}
+		
+	}
 	
 	
 	
