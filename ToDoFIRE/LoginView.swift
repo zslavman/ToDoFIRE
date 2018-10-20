@@ -234,47 +234,47 @@ class LoginView: UIViewController {
 
 
 
-extension UIScrollView {
-	
-	// способ хранить переменную в расширении
-	private struct AssociatedKeys {
-		static var startTouchPosition:CGPoint = .zero
-	}
-	
-	private var point: CGPoint? {
-		get {
-			return objc_getAssociatedObject(self, &AssociatedKeys.startTouchPosition) as? CGPoint
-		}
-		set {
-			if let newValue = newValue {
-				//objc_setAssociatedObject(<#T##object: Any##Any#>, <#T##key: UnsafeRawPointer##UnsafeRawPointer#>, <#T##value: Any?##Any?#>, <#T##policy: objc_AssociationPolicy##objc_AssociationPolicy#>)
-				objc_setAssociatedObject(self, &AssociatedKeys.startTouchPosition, newValue as CGPoint?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-			}
-		}
-	}
-	
-	
-	
-	override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if let touch = touches.first {
-			let position = touch.location(in: self)
-			point = position
-			print(position)
-		}
-	}
-	
-	
-	
-	override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if let touch = touches.first {
-			let position = touch.location(in: self)
-			if position == point {
-				endEditing(true)
-				point = .zero
-			}
-		}
-	}
-}
+//extension UIScrollView {
+//
+//	// способ хранить переменную в расширении
+//	private struct AssociatedKeys {
+//		static var startTouchPosition:CGPoint = .zero
+//	}
+//
+//	private var point: CGPoint? {
+//		get {
+//			return objc_getAssociatedObject(self, &AssociatedKeys.startTouchPosition) as? CGPoint
+//		}
+//		set {
+//			if let newValue = newValue {
+//				//objc_setAssociatedObject(<#T##object: Any##Any#>, <#T##key: UnsafeRawPointer##UnsafeRawPointer#>, <#T##value: Any?##Any?#>, <#T##policy: objc_AssociationPolicy##objc_AssociationPolicy#>)
+//				objc_setAssociatedObject(self, &AssociatedKeys.startTouchPosition, newValue as CGPoint?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+//			}
+//		}
+//	}
+//
+//
+//
+//	override open func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		if let touch = touches.first {
+//			let position = touch.location(in: self)
+//			point = position
+//			print(position)
+//		}
+//	}
+//
+//
+//
+//	override open func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		if let touch = touches.first {
+//			let position = touch.location(in: self)
+//			if position == point {
+//				endEditing(true)
+//				point = .zero
+//			}
+//		}
+//	}
+//}
 
 
 

@@ -14,7 +14,7 @@
         <scene sceneID="neY-Ux-Vzh">
             <objects>
                 <viewController id="mXt-Ko-s7e" customClass="LoginView" customModule="ToDoFIRE" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" multipleTouchEnabled="YES" contentMode="scaleToFill" id="ZEV-Qk-Ooq" customClass="UIScrollView">
+                    <view key="view" multipleTouchEnabled="YES" contentMode="scaleToFill" id="ZEV-Qk-Ooq" customClass="ScrollView" customModule="ToDoFIRE" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
