@@ -188,13 +188,14 @@
                                 <action selector="onLogoutClick:" destination="A7I-Ub-cSi" id="Tn1-vE-7WV"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="kFO-gZ-h8g">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="kFO-gZ-h8g">
                             <connections>
                                 <action selector="onPlusClick:" destination="A7I-Ub-cSi" id="Dpj-Fk-GIm"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="plusBttn" destination="kFO-gZ-h8g" id="xkh-xB-wVJ"/>
                         <outlet property="tableView_user" destination="mUW-bu-EtX" id="iJc-SW-TI5"/>
                     </connections>
                 </viewController>
