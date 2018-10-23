@@ -19,6 +19,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		
 		FirebaseApp.configure()
 		
+		// устраняем баги с таблицами для iOS 11
+//		UITableView.appearance().estimatedRowHeight = 0
+//		UITableView.appearance().estimatedSectionHeaderHeight = 0
+//		UITableView.appearance().estimatedSectionFooterHeight = 0
+		
 		return true
 	}
 

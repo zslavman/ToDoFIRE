@@ -9,12 +9,12 @@
 import UIKit
 import Firebase
 
+
 class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	@IBOutlet weak var tableView_user: UITableView!
 	@IBOutlet weak var plusBttn: UIBarButtonItem!
-	
 	
 	
 	private var user:UserCustom!
@@ -27,7 +27,13 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	}
 	
 	public var mode:MODE = .standby
+	private var dbEventListener:Bool = true // флаг разрешающий отображать приходящие обновления
+	private var bigEndian:Int = 0 			// старший индекс ячейки
+	
+	
 
+	
+	
 	
 	
 	
@@ -60,6 +66,11 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		ref.observe(.value) {
 			[weak self] (snapshot) in
 			
+			// не выполняем обновление если выключен флаг
+			if !(self?.dbEventListener)! {
+				return
+			}
+			
 			var tempTasks:[Task] = []
 			
 			for item in snapshot.children{
@@ -68,6 +79,9 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 			}
 			
 			self?.tasks = tempTasks.sorted{$0.order < $1.order}
+			if !(self?.tasks.isEmpty)!{
+				self?.bigEndian = (self?.tasks.last?.order)! + 1
+			}
 			self?.tableView_user.reloadData()
 		}
 	}
@@ -108,44 +122,17 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 				tableView_user.setEditing(false, animated: true)
 			}
 		}
-		
-//		let alertController = UIAlertController(title: "New Task", message: "Add new task", preferredStyle: .alert)
-//		alertController.addTextField()
-//
-//		let save = UIAlertAction(title: "Save", style: .default) {
-//			[weak self] _ in
-//			guard let tf = alertController.textFields?.first, tf.text != "" else { return }
-//
-//			// создаем адрес задачи
-//			let task = Task(title: tf.text!, userID: (self?.user.uid)!)
-//
-//			// создаем саму задачу
-//			let taskRef = self?.ref.child(task.title.lowercased()) // продолжение углубления в структуру данных БД (см. строку 29)
-//			// записываем задачу в БД по адресу
-//			taskRef?.setValue(task.convertToDict())
-//		}
-//
-//		let cancel = UIAlertAction(title: "Cancel", style: .default, handler: nil)
-//
-//		alertController.addAction(save)
-//		alertController.addAction(cancel)
-//
-//		present(alertController, animated: true, completion: nil)
 	}
 	
 	
 	
 	
 	
-
-	
-	
-	
 	
 	@objc private func keyboardWillShow(notification:Notification){
 		// получаем инфу о размере клавиатуры
-		if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-			tableView_user.contentInset = UIEdgeInsets(top: 64, left: 0, bottom: keyboardSize.height, right: 0)
+		if let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+			tableView_user.contentInset = UIEdgeInsets(top: getUpperBarsHeight(), left: 0, bottom: keyboardSize.height, right: 0)
 		}
 		mode = .editing
 		plusBttn.title = "Done"
@@ -154,20 +141,96 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
 	
 	@objc private func keyboardWillHide(notification:Notification){
-		
-		// вычисляем высоту навбара + статусбара, чтоб оставить этот паддинг сверху иначе таблица будет под этими барами
-		var upperPadding:CGFloat = UIApplication.shared.statusBarFrame.height
-		if let nc = navigationController {
-			upperPadding += nc.navigationBar.frame.size.height
+		if ((notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue) != nil {
+			if #available(iOS 11.0, *) {
+				tableView_user.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+			}
+			else{
+				tableView_user.contentInset = UIEdgeInsets(top: getUpperBarsHeight(), left: 0, bottom: 0, right: 0)
+			}
 		}
+	}
+	
+	
 
-		if ((notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue) != nil {
-			tableView_user.contentInset = UIEdgeInsets(top: upperPadding, left: 0, bottom: 0, right: 0)
+	/// конвертируем массив элементов в словарь и отправляем в БД
+	private func packAndSend(){
+		
+		var dict:[String:Any] = [:]
+		
+		for (index, var value) in tasks.enumerated() {
+			value.order = index
+			dict[value.title] = converter(cel: value)
+		}
+		
+		bigEndian = dict.count
+		
+		// отключаем слушатель изменения БД на время отправки
+		dbEventListener = false
+		
+		ref.setValue(dict) {
+			[weak self] (error, dbRef) in
+			
+			if error != nil {
+				print("error = \(error!.localizedDescription)")
+			}
+			self?.dbEventListener = true
 			
 		}
 	}
 	
 	
+	
+	/// конвертация в ячейку словаря
+	private func converter(cel:Task) -> Any {
+		return [
+			"title"		: cel.title,
+			"userID"	: cel.userID,
+			"completed"	: cel.completed,
+			"order"		: cel.order
+		]
+	}
+	
+	
+	
+	/// при окончании ввода в последнюю ячейку (футер)
+	@objc func textFieldDidChange(_ textField: UITextField) {
+		
+		guard textField.text != "" else { return }
+		
+		var str:String = textField.text!
+		
+		
+		// запись в БД не должна содержать след. символы:    '.' '#' '$' '[' ']'     RegEx =    /\.|\[|\]|\#|\$/g
+		let forbiden = [".", "[", "]", "#", "$"]
+		for value in forbiden {
+			str = str.replacingOccurrences(of: value, with: "!")
+		}
+		
+		// неработающая регулярка
+//		let regex = try! NSRegularExpression(pattern: "//.|//[|//]|//#|//$", options: [])
+//		let output = regex.stringByReplacingMatches(in: str, options: [], range: NSRange(location: 0, length: str.count), withTemplate: "!")
+//		print("output = \(output)")
+		
+		
+		// создаем адрес задачи
+		let task = Task(title: str, userID: user.uid, order: bigEndian)
+		bigEndian += 1
+		
+		// создаем саму задачу
+		let taskRef = ref.child(task.title.lowercased()) // продолжение углубления в структуру данных БД (см. строку 29)
+		
+		// записываем задачу в БД по адресу
+		taskRef.setValue(converter(cel: task))
+		
+		textField.text = ""
+	}
+	
+	
+	/// установка/убирание галочки
+	private func toggleComplete(_ cell:UITableViewCell, isCompleted:Bool){
+		cell.accessoryType = isCompleted ? .checkmark : .none
+	}
 	
 	
 	
@@ -224,11 +287,6 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	
-	// разрешение на перетаскивание строк таблицы (изменение порядка строк)
-//	func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-//		return true
-//	}
-	
 	
 	// добавляем фунуции к ячейке при свайпе влево
 	func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
@@ -269,7 +327,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		
 		// рендеринг кнопки
 		let imgSize: CGSize = tableView.frame.size
-		print("imgSize = \(imgSize)")
+		// print("imgSize = \(imgSize)")
 		UIGraphicsBeginImageContextWithOptions(imgSize, false, UIScreen.main.scale)
 		let context = UIGraphicsGetCurrentContext()
 		backView.layer.render(in: context!)
@@ -280,19 +338,50 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		
 		let del = UITableViewRowAction(style: .default, title: "         ") {
 			(action, indexPath) in
-			let task = self.tasks[indexPath.row]
-			task.ref?.removeValue()
+			
+			// удаляем ячейку из таблицы
+			// нужно удалять с анимацией, а значит, сначала удаляем с данных таблицы и самой таблицы, а в комплишинБлоке уже и из БД
+			self.savedTaskToDelete = self.tasks[indexPath.row]
+
+			CATransaction.begin()
+			tableView.beginUpdates()
+
+			self.tasks.remove(at: indexPath.row)
+			tableView.deleteRows(at: [indexPath], with: UITableViewRowAnimation.top)
+			CATransaction.setCompletionBlock {
+				self.dbEventListener = false
+				self.savedTaskToDelete.ref?.removeValue(completionBlock: {
+					[weak self] (error, dbRef) in
+					if error != nil {
+						print("error = \(error!.localizedDescription)")
+					}
+					self?.dbEventListener = true
+				})
+			}
+
+			tableView.endUpdates()
+			CATransaction.commit()
+			
+			
+			// удаляем в БД, а в самой таблице удалит слушатель БД
+			//  let task = self.tasks[indexPath.row]
+			//  task.ref?.removeValue()
 		}
 		
 		del.backgroundColor = UIColor(patternImage: newImage)
-		
 		//************************************
 		
 		return [del]
 	}
 	
 	
-	// разрешение удаления ячеек
+	
+	private var savedTaskToDelete:Task!
+	
+	
+	
+	
+	// разрешение удаления/перемещения ячеек
 	func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
 		return true
 	}
@@ -334,71 +423,47 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		tasks.remove(at: sourceIndexPath.row)
 		tasks.insert(movedRow, at: destinationIndexPath.row)
 		
-		packToJSON()
-		
-//		headerRef.setValue(tasks)
+		packAndSend()
+	}
+	
+
+	
+	// устраняет верхний отступ таблицы, появившийся после установки стиля таблицы на group
+	func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+		return CGFloat.leastNormalMagnitude
 	}
 	
 	
-	
-	private func packToJSON(){
-		
-		var newArr:[String:Int] = [:]
-		
-		for (index, value) in tasks.enumerated() {
-			var cel = converter(cel: value)
 
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/// [NOT USED] вычисляем суммарную высоту верхних баров (навбар + статусбар)
+	private func getUpperBarsHeight() -> CGFloat {
+		// вычисляем высоту навбара + статусбара, чтоб оставить этот паддинг сверху иначе таблица будет под этими барами
+		var upperPadding:CGFloat = UIApplication.shared.statusBarFrame.height
+		if let nc = navigationController {
+			upperPadding += nc.navigationBar.frame.size.height
 		}
+		// print("upperPadding = \(upperPadding)")
+		return upperPadding
 	}
-	
-	
-	
-	
-	private func converter(cel:Task) -> Any{
-		return [
-			"title"		: cel.title,
-			"userID"	: cel.userID,
-			"completed"	: cel.completed,
-			"order"		: cel.order
-		]
-	}
-	
-	
-	
-	// при окончании ввода в последнюю ячейку (футер)
-	@objc func textFieldDidChange(_ textField: UITextField) {
-
-		guard textField.text != "" else { return }
-		
-		let str:String = textField.text!
-		
-		// создаем адрес задачи
-		let task = Task(title: str, userID: user.uid, order: tasks.count)
-		
-		// создаем саму задачу
-		let taskRef = ref.child(task.title.lowercased()) // продолжение углубления в структуру данных БД (см. строку 29)
-		
-		// записываем задачу в БД по адресу
-		taskRef.setValue(task.convertToDict())
-		
-		textField.text = ""
-	}
-	
-	
-	private func toggleComplete(_ cell:UITableViewCell, isCompleted:Bool){
-		cell.accessoryType = isCompleted ? .checkmark : .none
-	}
-	
-	
-
-
-	
-	
 	
 	
 }
-
-
 
 
 

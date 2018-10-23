@@ -42,15 +42,7 @@ struct Task {
 	}
 	
 	
-	
-	public func convertToDict() -> Any {
-		return [
-			"title"		: title,
-			"userID"	: userID,
-			"completed"	: completed,
-			"order"		: order
-		]
-	}
+
 	
 	
 	

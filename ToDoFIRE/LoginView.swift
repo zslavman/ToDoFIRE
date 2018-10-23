@@ -212,16 +212,26 @@ class LoginView: UIViewController {
 	private func blockButtons(unblock:Bool = false){
 		
 		if unblock{
+			let hig:CGFloat = 1
 			loginBttn.isEnabled = true
-			loginBttn.alpha = 1
+			loginBttn.alpha = hig
 			registerBttn.isEnabled = true
-			registerBttn.alpha = 1
+			registerBttn.alpha = hig
+			email_TF.alpha = hig
+			email_TF.isEnabled = true
+			pass_TF.alpha = hig
+			pass_TF.isEnabled = true
 		}
 		else{
+			let low:CGFloat = 0.5
 			loginBttn.isEnabled = false
-			loginBttn.alpha = 0.5
+			loginBttn.alpha = low
 			registerBttn.isEnabled = false
-			registerBttn.alpha = 0.5
+			registerBttn.alpha = low
+			email_TF.alpha = low
+			email_TF.isEnabled = false
+			pass_TF.alpha = low
+			pass_TF.isEnabled = false
 		}
 	}
 	
