@@ -31,7 +31,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	private var bigEndian:Int = 0 			// старший индекс ячейки
 	
 	
-
+	// https://www.youtube.com/watch?v=WDQkjOcrbQE&t=0s&list=LLm73JL9J6duXQeEV02Br1pg&index=4
 	
 	
 	
@@ -132,7 +132,12 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	@objc private func keyboardWillShow(notification:Notification){
 		// получаем инфу о размере клавиатуры
 		if let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-			tableView_user.contentInset = UIEdgeInsets(top: getUpperBarsHeight(), left: 0, bottom: keyboardSize.height, right: 0)
+			if #available(iOS 11.0, *){ // в 11-й у таблицы появляется паддинг сверху
+				tableView_user.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+			}
+			else{
+				tableView_user.contentInset = UIEdgeInsets(top: getUpperBarsHeight(), left: 0, bottom: keyboardSize.height, right: 0)
+			}
 		}
 		mode = .editing
 		plusBttn.title = "Done"
@@ -142,7 +147,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	@objc private func keyboardWillHide(notification:Notification){
 		if ((notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue) != nil {
-			if #available(iOS 11.0, *) {
+			if #available(iOS 11.0, *) { // в 11-й у таблицы появляется паддинг сверху
 				tableView_user.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 			}
 			else{
