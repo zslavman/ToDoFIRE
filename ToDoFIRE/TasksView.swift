@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 
 
-class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
 	
 	
 	@IBOutlet weak var tableView_user: UITableView!
@@ -29,7 +29,10 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	public var mode:MODE = .standby
 	private var dbEventListener:Bool = true // флаг разрешающий отображать приходящие обновления
 	private var bigEndian:Int = 0 			// старший индекс ячейки
+	private var savedTaskToDelete:Task!
 	
+	private var footerTextView:UITextView!
+	private var footerView:UIView!
 	
 	// https://www.youtube.com/watch?v=WDQkjOcrbQE&t=0s&list=LLm73JL9J6duXQeEV02Br1pg&index=4
 	
@@ -50,9 +53,20 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		ref = Database.database().reference(withPath: "users").child(String(user.uid)).child("tasks")
 		//https://todofire-1111e.firebaseio.com/users/2gYjso475GJam57BK4zMW8QOzXtF41/tasks
 		
+//		tableView_user.estimatedSectionFooterHeight = 45
+//		tableView_user.sectionFooterHeight = UITableViewAutomaticDimension
+		
+		
+//		automaticallyAdjustsScrollViewInsets = false
+		
+		
 		// слушаем появление и заезжание клавиатуры
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+		
+//		if #available(iOS 11.0, *) {
+//			tableView_user.contentInsetAdjustmentBehavior = .never
+//		}
 	}
 	
 	
@@ -93,6 +107,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		ref.removeAllObservers()
 	}
 	
+	
 	@IBAction func onLogoutClick(_ sender: UIBarButtonItem) {
 		do {
 			try Auth.auth().signOut()
@@ -118,6 +133,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 			view.endEditing(true)
 			plusBttn.title = "Edit"
 			mode = .standby
+			footerView.layer.shadowOpacity = 0
 			if tableView_user.isEditing {
 				tableView_user.setEditing(false, animated: true)
 			}
@@ -132,27 +148,44 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	@objc private func keyboardWillShow(notification:Notification){
 		// получаем инфу о размере клавиатуры
 		if let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-			if #available(iOS 11.0, *){ // в 11-й у таблицы появляется паддинг сверху
-				tableView_user.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+			
+			var topOffset:CGFloat = getUpperBarsHeight()
+			
+			// в 11-й iOS у таблицы появляется паддинг сверху
+			if #available(iOS 11.0, *){
+				topOffset = 0
 			}
-			else{
-				tableView_user.contentInset = UIEdgeInsets(top: getUpperBarsHeight(), left: 0, bottom: keyboardSize.height, right: 0)
-			}
+			
+			tableView_user.contentInset = UIEdgeInsets(top: topOffset, left: 0, bottom: keyboardSize.height, right: 0)
+			// чтоб индикатор скрола не заходил за клавиатуру
+			tableView_user.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
 		}
+		
 		mode = .editing
 		plusBttn.title = "Done"
 		tableView_user.setEditing(false, animated: true)
+		
+		footerView.layer.shadowOpacity = 0.4
+		
+		// прокручиваем таблицу до нижней ячейки
+		let indexPath = IndexPath(row: tasks.count - 1, section: 0)
+		tableView_user.scrollToRow(at: indexPath, at: .top, animated: true)
 	}
+	
+	
 
 	
 	@objc private func keyboardWillHide(notification:Notification){
 		if ((notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue) != nil {
-			if #available(iOS 11.0, *) { // в 11-й у таблицы появляется паддинг сверху
-				tableView_user.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+		
+			var topOffset:CGFloat = getUpperBarsHeight()
+			
+			// в 11-й iOS у таблицы появляется паддинг сверху
+			if #available(iOS 11.0, *){
+				topOffset = 0
 			}
-			else{
-				tableView_user.contentInset = UIEdgeInsets(top: getUpperBarsHeight(), left: 0, bottom: 0, right: 0)
-			}
+			tableView_user.contentInset = UIEdgeInsets(top: topOffset, left: 0, bottom: 0, right: 0)
+			tableView_user.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 		}
 	}
 	
@@ -198,13 +231,38 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	
+	// Отслеживаем переход на след. строку при вводе текста
+	internal func textViewDidChange(_ textView: UITextView) {
+		
+//		let fixedWidth = textView.frame.size.width
+//		textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+//		let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+//		var newFrame = textView.frame
+//		newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+//		textView.frame = newFrame
+		
+		textView.translatesAutoresizingMaskIntoConstraints = true
+		textView.sizeToFit()
+		textView.isScrollEnabled = false
+		
+		let calHeight = textView.frame.size.height
+		textView.frame = CGRect(x: 20, y: 5, width: view.frame.size.width - 25, height: calHeight)
+		
+//		footerView.children
+
+	}
+	
+	
+	
+	
+	
+	
 	/// при окончании ввода в последнюю ячейку (футер)
-	@objc func textFieldDidChange(_ textField: UITextField) {
+	internal func textViewDidEndEditing(_ textView: UITextView) {
 		
-		guard textField.text != "" else { return }
+		guard textView.text != "" else { return }
 		
-		var str:String = textField.text!
-		
+		var str:String = textView.text!
 		
 		// запись в БД не должна содержать след. символы:    '.' '#' '$' '[' ']'     RegEx =    /\.|\[|\]|\#|\$/g
 		let forbiden = [".", "[", "]", "#", "$"]
@@ -213,9 +271,9 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		}
 		
 		// неработающая регулярка
-//		let regex = try! NSRegularExpression(pattern: "//.|//[|//]|//#|//$", options: [])
-//		let output = regex.stringByReplacingMatches(in: str, options: [], range: NSRange(location: 0, length: str.count), withTemplate: "!")
-//		print("output = \(output)")
+		//		let regex = try! NSRegularExpression(pattern: "//.|//[|//]|//#|//$", options: [])
+		//		let output = regex.stringByReplacingMatches(in: str, options: [], range: NSRange(location: 0, length: str.count), withTemplate: "!")
+		//		print("output = \(output)")
 		
 		
 		// создаем адрес задачи
@@ -228,18 +286,62 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		// записываем задачу в БД по адресу
 		taskRef.setValue(converter(cel: task))
 		
-		textField.text = ""
+		textView.text = ""
 	}
 	
 	
-	/// установка/убирание галочки
+	
+	
+	
+	/// установка/снятие галочки
 	private func toggleComplete(_ cell:UITableViewCell, isCompleted:Bool){
 		cell.accessoryType = isCompleted ? .checkmark : .none
 	}
 	
 	
 	
+	/// рисуем футер
+	private func drawFooter() -> UIView {
+		
+		guard footerView == nil else { return footerView  }
+		
+		let wid = UIScreen.main.bounds.width
+		print("зашли в построение футера")
+		footerView = UIView(frame: CGRect(x: 0, y: 0, width: wid - 10, height: 45))
+		footerView.backgroundColor = #colorLiteral(red: 0.9175293899, green: 0.8922236788, blue: 0.9686274529, alpha: 1)
+		
+		// let tf = UITextField(frame: CGRect(x: 20, y: 0, width: wid - 20, height: 45))
+		// tf.borderStyle = .line
+		// footerTextView.addTarget(self, action: #selector(textFieldDidChange(_:)), for: UIControlEvents.editingDidEnd)
+		
+		footerTextView = UITextView(frame: CGRect(x: 20, y: 5, width: wid - 25, height: 45))
+		footerTextView.text = ""
+//		footerTextView.center.y = footerView.center.y
+		footerTextView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+		footerTextView.font = UIFont.systemFont(ofSize: 17)
+		footerTextView.textColor = #colorLiteral(red: 0.2, green: 0.5607843137, blue: 0.9882352941, alpha: 1)
+		footerTextView.layer.cornerRadius = 10
+		
+//		footerTextView.translatesAutoresizingMaskIntoConstraints = true
+//		footerTextView.sizeToFit()
+//		footerTextView.isScrollEnabled = false
+		
+		footerTextView.delegate = self
+		
+		footerView.layer.shadowOffset = CGSize(width: 0, height: -2)
+		footerView.layer.shadowRadius = 4
+		footerView.layer.shadowOpacity = 0
+		
+		
+		footerView.addSubview(footerTextView)
+
+		
+		return footerView
+	}
 	
+	
+
+
 	
 	
 
@@ -381,7 +483,6 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	
-	private var savedTaskToDelete:Task!
 	
 	
 	
@@ -392,26 +493,18 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	}
 	
 	
+	
+	
 	//**********************
 	//   Настройки футера  *
 	//**********************
 	func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-		
-		let wid = UIScreen.main.bounds.width
-		
-		let backView = UIView(frame: CGRect(x: 0, y: 0, width: wid, height: 45))
-		backView.backgroundColor = #colorLiteral(red: 0.8607864299, green: 0.8073794393, blue: 0.9686274529, alpha: 1)
-		
-		let tf = UITextField(frame: CGRect(x: 20, y: 0, width: wid - 20, height: 45))
-		tf.text = ""
-		tf.addTarget(self, action: #selector(textFieldDidChange(_:)), for: UIControlEvents.editingDidEnd)
-		backView.addSubview(tf)
-		
-		return backView
+
+		return drawFooter()
 	}
 
 	func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-		return 45
+		return 55
 	}
 
 
