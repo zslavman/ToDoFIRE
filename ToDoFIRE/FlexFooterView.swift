@@ -22,6 +22,7 @@ class FlexFooterView: UIView, UITextViewDelegate {
 	@IBOutlet weak var containerView:UIView!
 	
 	private var parentLink:TasksView!
+	private var storedProperty:CGSize! // начальные размеры текстового поля
 	
 	
 	override init(frame: CGRect) {
@@ -38,15 +39,16 @@ class FlexFooterView: UIView, UITextViewDelegate {
 	convenience init(frame: CGRect, parentLink:TasksView) {
 		self.init(frame: frame)
 		self.parentLink = parentLink
-		
-		
 	}
+	
+	
 	
 	
 	
 	
 	private func nibSetup(){
 		
+		// загружаем XIB
 		Bundle.main.loadNibNamed("BottomPanel", owner: self, options: nil)
 		addSubview(containerView)
 		containerView.frame = self.bounds
@@ -54,10 +56,16 @@ class FlexFooterView: UIView, UITextViewDelegate {
 		translatesAutoresizingMaskIntoConstraints = true
 		
 		
+		storedProperty = footerTextView.frame.size
+		print("storedProperys = \(storedProperty)")
 		footerTextView.layer.cornerRadius = 10
-		addBttn.layer.cornerRadius = 10
+		// паддинги для текстового поля
+		footerTextView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 		
-		containerView.backgroundColor = #colorLiteral(red: 0.9175293899, green: 0.8922236788, blue: 0.9686274529, alpha: 1)
+		addBttn.layer.cornerRadius = addBttn.layer.bounds.size.width / 2
+		addBttn.layer.contentsScale = 1.5
+		
+		containerView.backgroundColor = #colorLiteral(red: 0.871609158, green: 0.9240212035, blue: 0.9921568627, alpha: 1)
 		containerView.layer.shadowOffset = CGSize(width: 0, height: -2)
 		containerView.layer.shadowRadius = 4
 		containerView.layer.shadowOpacity = 0
@@ -69,11 +77,16 @@ class FlexFooterView: UIView, UITextViewDelegate {
 	
 	
 	/// клик на кн. "+"
-	@IBAction func onAddBttnClick(_ sender: UIButton) {
+	@IBAction func onAddBttnClick(_ sender: UIButton?) {
+		
+		savedHeight = 0
 		
 		endEditing(true)
+		// после этого сработает
+		// 1) слушатель заезжания клавы в TasksView, который переключит
+		// 2) режим редактирования в .standby + выключит тень этой вьюшки
 		
-		guard footerTextView.text != "" else { return }
+		guard footerTextView.text != "" && footerTextView.text != " " else { return }
 		
 		var str:String = footerTextView.text!
 		
@@ -84,38 +97,41 @@ class FlexFooterView: UIView, UITextViewDelegate {
 		}
 		
 		footerTextView.text = ""
+		footerTextView.frame.size = storedProperty
 		
 		// неработающая регулярка
 		//		let regex = try! NSRegularExpression(pattern: "//.|//[|//]|//#|//$", options: [])
 		//		let output = regex.stringByReplacingMatches(in: str, options: [], range: NSRange(location: 0, length: str.count), withTemplate: "!")
 		//		print("output = \(output)")
 		
-		
+		// сохраняем базу
 		parentLink.addTaskToDB(str)
+	}
+	
+	
+
+
+	
+	
+	private var savedHeight:CGFloat = 0
+	
+	// Отслеживаем переход на след. строку при вводе текста
+	internal func textViewDidChange(_ textView: UITextView) {
+
+		let fixedWidth = textView.frame.size.width
+		let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+		textView.frame.size = CGSize(width: fixedWidth, height: newSize.height)
+
+//		if newSize.height > savedHeight {
+//			let diff = newSize.height - savedHeight
+//			savedHeight = newSize.height
+//			containerView.frame.size.height += diff
+//		}
+
+		print("Высота строки = \(textView.frame.size.height)")
 		
 	}
 	
-
-
-	
-	
-	// Отслеживаем переход на след. строку при вводе текста
-//	internal func textViewDidChange(_ textView: UITextView) {
-//
-//		//		let fixedWidth = textView.frame.size.width
-//		//		textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-//		//		let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-//		//		var newFrame = textView.frame
-//		//		newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-//		//		textView.frame = newFrame
-//
-//		textView.translatesAutoresizingMaskIntoConstraints = true
-//		textView.sizeToFit()
-//		textView.isScrollEnabled = false
-//
-//		textView.frame = CGRect(x: 20, y: 5, width: self.frame.size.width - 25, height: textView.frame.size.height)
-//
-//	}
 	
 	
 

@@ -26,7 +26,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		case standby
 	}
 	
-	public var mode:MODE = .standby
+	public var mode:MODE = .standby			// флаг что сейчас идет ввод текста в ячеку футера
 	private var dbEventListener:Bool = true // флаг разрешающий отображать приходящие обновления
 	private var bigEndian:Int = 0 			// старший индекс ячейки
 	private var savedTaskToDelete:Task!
@@ -50,8 +50,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		ref = Database.database().reference(withPath: "users").child(String(user.uid)).child("tasks")
 		//https://todofire-1111e.firebaseio.com/users/2gYjso475GJam57BK4zMW8QOzXtF41/tasks
 		
-//		tableView_user.estimatedSectionFooterHeight = 45
-//		tableView_user.sectionFooterHeight = UITableViewAutomaticDimension
+		tableView_user.sectionFooterHeight = UITableViewAutomaticDimension
+		tableView_user.estimatedSectionFooterHeight = 55
 		
 		// слушаем появление и заезжание клавиатуры
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -122,25 +122,33 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	
-	@IBAction func onPlusClick(_ sender: UIBarButtonItem) {
+	@IBAction func onEditClick(_ sender: UIBarButtonItem) {
 		
-		if mode == .standby{
+		// убираем ввод, если начинали вводить
+		footerView.onAddBttnClick(nil)
+		
+		// если таблица в нормальном режиме
+		if !tableView_user.isEditing {
 			plusBttn.title = "Done"
-			mode = .editing
-			tableView_user.setEditing(true, animated: true)
 		}
-		else if mode == .editing{ // когда уже начали редактировать текст в ячейках ИЛИ когда начали редактировать порядок ячеек
-			view.endEditing(true)
+		// если таблица в режиме перетаскивания ячеек
+		else {
 			plusBttn.title = "Edit"
-			mode = .standby
-			footerView.layer.shadowOpacity = 0
-			if tableView_user.isEditing {
-				tableView_user.setEditing(false, animated: true)
-			}
 		}
+		tableView_user.setEditing(!tableView_user.isEditing, animated: true)
 	}
 	
 	
+	
+	
+	
+	
+	
+	// прокручиваем таблицу до нижней ячейки
+	private func scrollTableToBottom(){
+		let indexPath = IndexPath(row: tasks.count - 1, section: 0)
+		tableView_user.scrollToRow(at: indexPath, at: .top, animated: true)
+	}
 	
 	
 	
@@ -162,7 +170,9 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		}
 		
 		mode = .editing
-		plusBttn.title = "Done"
+		
+		// выключаем режим перетаскивания ячеек, если он был включен
+		plusBttn.title = "Edit"
 		tableView_user.setEditing(false, animated: true)
 		
 		footerView.layer.shadowOpacity = 0.4
@@ -170,14 +180,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	
-	
-	
-	// прокручиваем таблицу до нижней ячейки
-	private func scrollTableToBottom(){
-		let indexPath = IndexPath(row: tasks.count - 1, section: 0)
-		tableView_user.scrollToRow(at: indexPath, at: .top, animated: true)
-	}
-	
+
 
 	
 	@objc private func keyboardWillHide(notification:Notification){
@@ -192,6 +195,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 			tableView_user.contentInset = UIEdgeInsets(top: topOffset, left: 0, bottom: 0, right: 0)
 			tableView_user.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
 			
+			mode = .standby
 			footerView.layer.shadowOpacity = 0
 		}
 	}
@@ -449,9 +453,9 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		return drawFooter()
 	}
 
-	func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-		return 55
-	}
+//	func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+//		return max(CGFloat.leastNormalMagnitude, 55)
+//	}
 
 
 	// разрешение на перетаскивание строк таблицы (изменение порядка строк)

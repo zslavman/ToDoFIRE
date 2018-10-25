@@ -190,7 +190,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Edit" id="kFO-gZ-h8g">
                             <connections>
-                                <action selector="onPlusClick:" destination="A7I-Ub-cSi" id="Dpj-Fk-GIm"/>
+                                <action selector="onEditClick:" destination="A7I-Ub-cSi" id="Dpj-Fk-GIm"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
