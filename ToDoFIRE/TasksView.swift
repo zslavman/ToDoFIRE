@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 
 
-class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
+class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	@IBOutlet weak var tableView_user: UITableView!
@@ -31,11 +31,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 	private var bigEndian:Int = 0 			// старший индекс ячейки
 	private var savedTaskToDelete:Task!
 	
-	private var footerTextView:UITextView!
-	private var footerView:UIView!
-	
-	// https://www.youtube.com/watch?v=WDQkjOcrbQE&t=0s&list=LLm73JL9J6duXQeEV02Br1pg&index=4
-	
+//	private var footerTextView:UITextView!
+	public var footerView:FlexFooterView!
 	
 	
 	
@@ -55,10 +52,6 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 		
 //		tableView_user.estimatedSectionFooterHeight = 45
 //		tableView_user.sectionFooterHeight = UITableViewAutomaticDimension
-		
-		
-//		automaticallyAdjustsScrollViewInsets = false
-		
 		
 		// слушаем появление и заезжание клавиатуры
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -80,6 +73,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 		ref.observe(.value) {
 			[weak self] (snapshot) in
 			
+			let startValue = self?.tasks.count ?? 0
+			
 			// не выполняем обновление если выключен флаг
 			if !(self?.dbEventListener)! {
 				return
@@ -97,6 +92,11 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 				self?.bigEndian = (self?.tasks.last?.order)! + 1
 			}
 			self?.tableView_user.reloadData()
+			
+			// если было добавление ячейки
+			if (self?.tasks.count)! > startValue && startValue > 0{
+				self?.scrollTableToBottom()
+			}
 		}
 	}
 	
@@ -166,12 +166,17 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 		tableView_user.setEditing(false, animated: true)
 		
 		footerView.layer.shadowOpacity = 0.4
-		
-		// прокручиваем таблицу до нижней ячейки
+	}
+	
+	
+	
+	
+	
+	// прокручиваем таблицу до нижней ячейки
+	private func scrollTableToBottom(){
 		let indexPath = IndexPath(row: tasks.count - 1, section: 0)
 		tableView_user.scrollToRow(at: indexPath, at: .top, animated: true)
 	}
-	
 	
 
 	
@@ -186,6 +191,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 			}
 			tableView_user.contentInset = UIEdgeInsets(top: topOffset, left: 0, bottom: 0, right: 0)
 			tableView_user.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+			
+			footerView.layer.shadowOpacity = 0
 		}
 	}
 	
@@ -231,50 +238,8 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 	
 	
 	
-	// Отслеживаем переход на след. строку при вводе текста
-	internal func textViewDidChange(_ textView: UITextView) {
-		
-//		let fixedWidth = textView.frame.size.width
-//		textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-//		let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-//		var newFrame = textView.frame
-//		newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
-//		textView.frame = newFrame
-		
-		textView.translatesAutoresizingMaskIntoConstraints = true
-		textView.sizeToFit()
-		textView.isScrollEnabled = false
-		
-		let calHeight = textView.frame.size.height
-		textView.frame = CGRect(x: 20, y: 5, width: view.frame.size.width - 25, height: calHeight)
-		
-//		footerView.children
-
-	}
-	
-	
-	
-	
-	
-	
-	/// при окончании ввода в последнюю ячейку (футер)
-	internal func textViewDidEndEditing(_ textView: UITextView) {
-		
-		guard textView.text != "" else { return }
-		
-		var str:String = textView.text!
-		
-		// запись в БД не должна содержать след. символы:    '.' '#' '$' '[' ']'     RegEx =    /\.|\[|\]|\#|\$/g
-		let forbiden = [".", "[", "]", "#", "$"]
-		for value in forbiden {
-			str = str.replacingOccurrences(of: value, with: "!")
-		}
-		
-		// неработающая регулярка
-		//		let regex = try! NSRegularExpression(pattern: "//.|//[|//]|//#|//$", options: [])
-		//		let output = regex.stringByReplacingMatches(in: str, options: [], range: NSRange(location: 0, length: str.count), withTemplate: "!")
-		//		print("output = \(output)")
-		
+	/// записываем таск на сервер
+	public func addTaskToDB(_ str:String){
 		
 		// создаем адрес задачи
 		let task = Task(title: str, userID: user.uid, order: bigEndian)
@@ -286,8 +251,15 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 		// записываем задачу в БД по адресу
 		taskRef.setValue(converter(cel: task))
 		
-		textView.text = ""
 	}
+	
+	
+	
+	
+	
+	
+	
+
 	
 	
 	
@@ -303,39 +275,13 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource, U
 	/// рисуем футер
 	private func drawFooter() -> UIView {
 		
-		guard footerView == nil else { return footerView  }
+		guard footerView == nil else { return footerView}
 		
-		let wid = UIScreen.main.bounds.width
-		print("зашли в построение футера")
-		footerView = UIView(frame: CGRect(x: 0, y: 0, width: wid - 10, height: 45))
-		footerView.backgroundColor = #colorLiteral(red: 0.9175293899, green: 0.8922236788, blue: 0.9686274529, alpha: 1)
+		// footerView = FlexFooterView.fromNib() as! FlexFooterView // не работает
+//		footerView = Bundle.main.loadNibNamed("BottomPanel", owner: self, options: nil)![0] as! FlexFooterView
 		
-		// let tf = UITextField(frame: CGRect(x: 20, y: 0, width: wid - 20, height: 45))
-		// tf.borderStyle = .line
-		// footerTextView.addTarget(self, action: #selector(textFieldDidChange(_:)), for: UIControlEvents.editingDidEnd)
-		
-		footerTextView = UITextView(frame: CGRect(x: 20, y: 5, width: wid - 25, height: 45))
-		footerTextView.text = ""
-//		footerTextView.center.y = footerView.center.y
-		footerTextView.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-		footerTextView.font = UIFont.systemFont(ofSize: 17)
-		footerTextView.textColor = #colorLiteral(red: 0.2, green: 0.5607843137, blue: 0.9882352941, alpha: 1)
-		footerTextView.layer.cornerRadius = 10
-		
-//		footerTextView.translatesAutoresizingMaskIntoConstraints = true
-//		footerTextView.sizeToFit()
-//		footerTextView.isScrollEnabled = false
-		
-		footerTextView.delegate = self
-		
-		footerView.layer.shadowOffset = CGSize(width: 0, height: -2)
-		footerView.layer.shadowRadius = 4
-		footerView.layer.shadowOpacity = 0
-		
-		
-		footerView.addSubview(footerTextView)
-
-		
+		footerView = FlexFooterView(frame: CGRect(x: 0, y: 0, width: 370, height: 60), parentLink: self)
+	
 		return footerView
 	}
 	

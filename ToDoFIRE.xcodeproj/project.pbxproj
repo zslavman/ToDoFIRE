@@ -10,6 +10,7 @@
 		5632B7D12178DD5F00FB3421 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5632B7D02178DD5F00FB3421 /* Task.swift */; };
 		5632B7D32178DD7100FB3421 /* UserCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5632B7D22178DD7100FB3421 /* UserCustom.swift */; };
 		56386938217A62E600096FEA /* ScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56386937217A62E600096FEA /* ScrollView.swift */; };
+		563EC0E12180F2B700C6FF4D /* FlexFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563EC0DF2180F2B700C6FF4D /* FlexFooterView.swift */; };
 		5673E1E721779F700046A9DC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5673E1E621779F700046A9DC /* AppDelegate.swift */; };
 		5673E1EC21779F700046A9DC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5673E1EA21779F700046A9DC /* Main.storyboard */; };
 		5673E1EE21779F700046A9DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5673E1ED21779F700046A9DC /* Assets.xcassets */; };
@@ -17,6 +18,7 @@
 		5673E1FB2177A05F0046A9DC /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5673E1F92177A05F0046A9DC /* LoginView.swift */; };
 		5673E1FC2177A05F0046A9DC /* TasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5673E1FA2177A05F0046A9DC /* TasksView.swift */; };
 		5673E2002177A4300046A9DC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5673E1FF2177A4300046A9DC /* GoogleService-Info.plist */; };
+		568FF00521812C4E00D82702 /* BottomPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 568FF00421812C4E00D82702 /* BottomPanel.xib */; };
 		D4E243B1757EC92B3C0BAB39 /* Pods_ToDoFIRE.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2F203E16E7A0B0BC253FDAF5 /* Pods_ToDoFIRE.framework */; };
 /* End PBXBuildFile section */
 
@@ -25,6 +27,7 @@
 		5632B7D02178DD5F00FB3421 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		5632B7D22178DD7100FB3421 /* UserCustom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCustom.swift; sourceTree = "<group>"; };
 		56386937217A62E600096FEA /* ScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollView.swift; sourceTree = "<group>"; };
+		563EC0DF2180F2B700C6FF4D /* FlexFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlexFooterView.swift; sourceTree = "<group>"; };
 		5673E1E321779F700046A9DC /* ToDoFIRE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoFIRE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5673E1E621779F700046A9DC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5673E1EB21779F700046A9DC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -34,6 +37,7 @@
 		5673E1F92177A05F0046A9DC /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		5673E1FA2177A05F0046A9DC /* TasksView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TasksView.swift; sourceTree = "<group>"; };
 		5673E1FF2177A4300046A9DC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		568FF00421812C4E00D82702 /* BottomPanel.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = BottomPanel.xib; sourceTree = "<group>"; };
 		8460D69676361EBFDC4F0ACE /* Pods-ToDoFIRE.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoFIRE.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoFIRE/Pods-ToDoFIRE.debug.xcconfig"; sourceTree = "<group>"; };
 		8C161883F22DADA9751BD3CD /* Pods-ToDoFIRE.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoFIRE.release.xcconfig"; path = "Pods/Target Support Files/Pods-ToDoFIRE/Pods-ToDoFIRE.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -84,6 +88,8 @@
 				5673E1F92177A05F0046A9DC /* LoginView.swift */,
 				56386937217A62E600096FEA /* ScrollView.swift */,
 				5673E1FA2177A05F0046A9DC /* TasksView.swift */,
+				563EC0DF2180F2B700C6FF4D /* FlexFooterView.swift */,
+				568FF00421812C4E00D82702 /* BottomPanel.xib */,
 				5632B7D42178DD8200FB3421 /* Models */,
 				5673E1F821779F8D0046A9DC /* Supporting Files */,
 			);
@@ -181,6 +187,7 @@
 			files = (
 				5673E1F121779F700046A9DC /* LaunchScreen.storyboard in Resources */,
 				5673E2002177A4300046A9DC /* GoogleService-Info.plist in Resources */,
+				568FF00521812C4E00D82702 /* BottomPanel.xib in Resources */,
 				5673E1EE21779F700046A9DC /* Assets.xcassets in Resources */,
 				5673E1EC21779F700046A9DC /* Main.storyboard in Resources */,
 			);
@@ -244,6 +251,7 @@
 				5632B7D32178DD7100FB3421 /* UserCustom.swift in Sources */,
 				5673E1E721779F700046A9DC /* AppDelegate.swift in Sources */,
 				56386938217A62E600096FEA /* ScrollView.swift in Sources */,
+				563EC0E12180F2B700C6FF4D /* FlexFooterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
