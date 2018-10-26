@@ -20,12 +20,12 @@ class FlexFooterView: UIView, UITextViewDelegate {
 	@IBOutlet weak var footerTextView: UITextView!
 	@IBOutlet weak var addBttn: UIButton!
 	@IBOutlet weak var containerView:UIView! // self
-	@IBOutlet weak var textHeightConstrain:NSLayoutConstraint!
+//	@IBOutlet weak var textHeightConstrain:NSLayoutConstraint!
 	
 	private var parentLink:TasksView!
-	private var storedProperty:CGSize! 		// начальные размеры текстового поля
-	private var startHeight:CGFloat = 0 	// начальная высота текстовой строки
-	
+	private var footerTextStartSize:CGSize! 		// начальные размеры текстового поля
+	private var selfStartSize:CGSize! 				// начальные размеры фона
+	private var tableBottomEdge:CGFloat! 			// начальные размеры таблицы
 	
 	
 	
@@ -58,13 +58,7 @@ class FlexFooterView: UIView, UITextViewDelegate {
 		containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		translatesAutoresizingMaskIntoConstraints = true
 		
-		
-		storedProperty = containerView.frame.size
-		startHeight = footerTextView.frame.height
-		print("storedProperys = \(storedProperty)")
-		
 		addBttn.layer.cornerRadius = addBttn.layer.bounds.size.width / 2
-//		addBttn.layer.contentsScale = 1.5
 		
 		containerView.backgroundColor = #colorLiteral(red: 0.871609158, green: 0.9240212035, blue: 0.9921568627, alpha: 1)
 		containerView.layer.shadowOffset = CGSize(width: 0, height: -2)
@@ -73,7 +67,7 @@ class FlexFooterView: UIView, UITextViewDelegate {
 
 		footerTextView.layer.cornerRadius = 10
 		// паддинги для текстового поля
-//		footerTextView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+		footerTextView.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 		footerTextView.delegate = self
 	}
 	
@@ -82,8 +76,6 @@ class FlexFooterView: UIView, UITextViewDelegate {
 	
 	/// клик на кн. "+"
 	@IBAction func onAddBttnClick(_ sender: UIButton?) {
-		
-		startHeight = 0
 		
 		endEditing(true)
 		// после этого сработает
@@ -101,7 +93,6 @@ class FlexFooterView: UIView, UITextViewDelegate {
 		}
 		
 		footerTextView.text = ""
-		containerView.frame.size = storedProperty
 		
 		// неработающая регулярка
 		//		let regex = try! NSRegularExpression(pattern: "//.|//[|//]|//#|//$", options: [])
@@ -109,42 +100,61 @@ class FlexFooterView: UIView, UITextViewDelegate {
 		//		print("output = \(output)")
 		
 		// сохраняем базу
+//		print("str = \(str)")
 		parentLink.addTaskToDB(str)
 	}
 	
 	
 
 
-	
-	
+	func textViewDidBeginEditing(_ textView: UITextView) {
+		footerTextStartSize = footerTextView.frame.size
+		selfStartSize = containerView.frame.size
+		tableBottomEdge = parentLink.tableView_user.contentInset.bottom
+//		parentLink.tableView_user.isScrollEnabled = false
+	}
+	func textViewDidEndEditing(_ textView: UITextView) {
+		containerView.frame.size = selfStartSize
+	}
 	
 	
 	// Отслеживаем переход на след. строку при вводе текста
 	internal func textViewDidChange(_ textView: UITextView) {
 
-		let fixedWidth = textView.frame.width
-		let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
-//		textView.frame.size = CGSize(width: fixedWidth, height: newSize.height)
+		let size = CGSize(width: footerTextStartSize.width, height: .infinity)
+		let estimatedSize = textView.sizeThatFits(size)
 		
-//		let newHeight = newSize.height
-//		var diff:CGFloat = 0
-//
-//		if Int(newHeight) != Int(startHeight) {
-//			diff = newHeight - startHeight
-//			startHeight = newHeight
-//
-//			// расширяем фон
-//			containerView.frame.size.height += diff
-//
-//			// расширяем занимаемое пространство
-//			parentLink.tableView_user.contentInset.bottom += diff
-//
-//			print("Высота строки = \(textView.frame.size.height)   diff = \(diff)")
-//		}
-		textHeightConstrain.constant = textView.contentSize.height
+		textView.frame.size.height = estimatedSize.height
 		
-		print("Width = \(textView.contentSize.width) High = \(textView.contentSize.height)")
+		let diff = estimatedSize.height - footerTextStartSize.height
+		let botEdgeNow = parentLink.tableView_user.contentInset.bottom
+
+		if botEdgeNow != tableBottomEdge + diff {
+			parentLink.tableView_user.contentInset.bottom = tableBottomEdge + diff
+			containerView.frame.size.height = selfStartSize.height + diff
+		}
+		
+		print("estimatedHeight = \(estimatedSize.height)   tableBottomEdge = \(tableBottomEdge!)   diff = \(diff)  bottom = \(parentLink.tableView_user.contentInset.bottom)")
+		
+		
+		//		let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+		//		textView.frame.size = CGSize(width: fixedWidth, height: newSize.height)
+		
+		// способ Вонга
+		// let size = CGSize(width: sp, height: .infinity)
+		// let estimatedSize = textView.sizeThatFits(size)
+		//
+		// textView.constraints.forEach {
+		//	(constraint) in
+		//		if constraint.firstAttribute == .height {
+		//			constraint.constant = estimatedSize.height
+		//		}
+		//	}
 	}
+		
+	
+	
+	
 	
 	
 	

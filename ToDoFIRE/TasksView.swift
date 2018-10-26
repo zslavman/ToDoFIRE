@@ -62,6 +62,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 //		}
 	}
 	
+
 	
 	
 	// по документации Firebase наблюдателей изменения данных в базе нужно ставить именно в этом методе
@@ -328,6 +329,12 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	// клик по ячейке
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+		
+		if mode == .editing {
+			footerView.onAddBttnClick(nil)
+			return
+		}
+		
 		// получаем ячейку по которой кликнули
 		guard let cell = tableView_user.cellForRow(at: indexPath) else {
 			return

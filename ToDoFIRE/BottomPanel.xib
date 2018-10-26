@@ -55,10 +55,10 @@
             </subviews>
             <color key="backgroundColor" red="0.92941176469999998" green="0.92549019610000005" blue="0.94901960780000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="5jQ-eT-G3B" secondAttribute="bottom" constant="9" id="2op-OC-ql3"/>
-                <constraint firstItem="fKL-eB-N6z" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="BNr-DH-ppn"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="5jQ-eT-G3B" secondAttribute="bottom" constant="9" id="IUp-70-2Yd"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="fKL-eB-N6z" secondAttribute="trailing" constant="11" id="Rda-41-3tu"/>
                 <constraint firstItem="5jQ-eT-G3B" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="9" id="f8J-xi-h0a"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="fKL-eB-N6z" secondAttribute="bottom" constant="12" id="f9t-86-h6C"/>
                 <constraint firstItem="5jQ-eT-G3B" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="6" id="hZZ-GP-fWx"/>
                 <constraint firstItem="fKL-eB-N6z" firstAttribute="leading" secondItem="5jQ-eT-G3B" secondAttribute="trailing" constant="12" id="reZ-1z-3di"/>
             </constraints>
