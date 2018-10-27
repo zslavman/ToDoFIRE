@@ -316,36 +316,13 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
 		// избавляемся от пустых строк
 //		tableView.tableFooterView = UIView(frame: CGRect.zero)
-		tableView.separatorColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+		tableView.separatorColor = .clear
 		
 		return cell
 	}
     
 	
-	
-	// клик по ячейке
-//	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//
-////		if mode == .editing {
-////			footerView.onAddBttnClick(nil)
-////			return
-////		}
-//
-//		// получаем ячейку по которой кликнули
-//		guard let cell = tableView_user.cellForRow(at: indexPath) else {
-//			return
-//		}
-//
-//		let task = tasks[indexPath.row]
-//		let isCompleted = !task.completed
-//
-//		// рисуем галочку
-////		toggleComplete(cell, isCompleted: isCompleted)
-//		// передаем изменения в БД Firebase
-//		task.ref?.updateChildValues(["completed": isCompleted])
-//	}
-	
-	
+
 	
 	
 	// добавляем фунуции к ячейке при свайпе влево

@@ -52,7 +52,6 @@ class TasksCell: UITableViewCell, UITextViewDelegate {
 			(constraint) in
 			if constraint.firstAttribute == .height {
 				constraint.constant = sizeThatShouldFitTheContent.height
-				print("sizeThatShouldFitTheContent = \(sizeThatShouldFitTheContent.height)")
 			}
 		}
 		
@@ -75,6 +74,8 @@ class TasksCell: UITableViewCell, UITextViewDelegate {
 	@IBAction func onCheckClick(_ sender: Any) {
 		currentTask.completed = !currentTask.completed
 		toggleComplete()
+		// передаем изменения в БД Firebase
+		currentTask.ref?.updateChildValues(["completed": currentTask.completed])
 	}
 	
 	
