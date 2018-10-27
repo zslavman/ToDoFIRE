@@ -121,16 +121,17 @@ class FlexFooterView: UIView, UITextViewDelegate {
 	// Отслеживаем переход на след. строку при вводе текста
 	internal func textViewDidChange(_ textView: UITextView) {
 
+		// высчитываем новый размер высоты
 		let size = CGSize(width: footerTextStartSize.width, height: .infinity)
 		let estimatedSize = textView.sizeThatFits(size)
-		
-		textView.frame.size.height = estimatedSize.height
+//		textView.frame.size.height = estimatedSize.height
 		
 		let diff = estimatedSize.height - footerTextStartSize.height
-		let botEdgeNow = parentLink.tableView_user.contentInset.bottom
 
-		if botEdgeNow != tableBottomEdge + diff {
+		if parentLink.tableView_user.contentInset.bottom != tableBottomEdge + diff {
+			// расширяем таблицу
 			parentLink.tableView_user.contentInset.bottom = tableBottomEdge + diff
+			// расширяем фон футера
 			containerView.frame.size.height = selfStartSize.height + diff
 		}
 		
@@ -152,11 +153,6 @@ class FlexFooterView: UIView, UITextViewDelegate {
 		//	}
 	}
 		
-	
-	
-	
-	
-	
 	
 
 	

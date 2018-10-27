@@ -15,6 +15,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	@IBOutlet weak var tableView_user: UITableView!
 	@IBOutlet weak var plusBttn: UIBarButtonItem!
+	@IBOutlet weak var logOut: UIBarButtonItem!
 	
 	
 	private var user:UserCustom!
@@ -35,11 +36,11 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	public var footerView:FlexFooterView!
 	
 	
-	
+
 	
     override func viewDidLoad() {
         super.viewDidLoad()
-
+		
 		// проверка на всяк случай что мы залогинены
 		guard let currentUser = Auth.auth().currentUser else { return }
 		
@@ -52,6 +53,10 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		
 		tableView_user.sectionFooterHeight = UITableViewAutomaticDimension
 		tableView_user.estimatedSectionFooterHeight = 55
+		
+		tableView_user.rowHeight = UITableViewAutomaticDimension
+		tableView_user.estimatedRowHeight = UITableViewAutomaticDimension
+//		tableView_user.estimatedRowHeight = 55
 		
 		// слушаем появление и заезжание клавиатуры
 		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
@@ -177,6 +182,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		tableView_user.setEditing(false, animated: true)
 		
 		footerView.layer.shadowOpacity = 0.4
+		
 	}
 	
 	
@@ -264,19 +270,6 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	
-
-	
-	
-	
-	
-	
-	/// установка/снятие галочки
-	private func toggleComplete(_ cell:UITableViewCell, isCompleted:Bool){
-		cell.accessoryType = isCompleted ? .checkmark : .none
-	}
-	
-	
-	
 	/// рисуем футер
 	private func drawFooter() -> UIView {
 		
@@ -292,10 +285,17 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 
-
+	func scrollViewDidScroll(_ scrollView: UIScrollView) {
+		print("bla-bla-bla....")
+	}
 	
 	
 
+	
+	
+	
+	
+	
 	
 	/* ===================================================*/
 	/* ============= ДЕЙСТВИЯ С ТАБЛИЦЕЙ =================*/
@@ -308,16 +308,12 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	// создание таблицы
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		let cell = tableView.dequeueReusableCell(withIdentifier: "my_cell", for: indexPath)
+		let cell = tableView.dequeueReusableCell(withIdentifier: "my_cell", for: indexPath) as! TasksCell
+		cell.currentTask = tasks[indexPath.row]
+		cell.setup()
 		
-		cell.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-		cell.textLabel?.textColor = #colorLiteral(red: 0.2, green: 0.5607843137, blue: 0.9882352941, alpha: 1)
-		cell.selectionStyle = .none
-		
-		cell.textLabel?.text = tasks[indexPath.row].title
-		toggleComplete(cell, isCompleted: tasks[indexPath.row].completed)
+		cell.currentTask = tasks[indexPath.row]
 
-		
 		// избавляемся от пустых строк
 //		tableView.tableFooterView = UIView(frame: CGRect.zero)
 		tableView.separatorColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
@@ -328,26 +324,26 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	
 	
 	// клик по ячейке
-	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		
-		if mode == .editing {
-			footerView.onAddBttnClick(nil)
-			return
-		}
-		
-		// получаем ячейку по которой кликнули
-		guard let cell = tableView_user.cellForRow(at: indexPath) else {
-			return
-		}
-		
-		let task = tasks[indexPath.row]
-		let isCompleted = !task.completed
-		
-		// рисуем галочку
-		toggleComplete(cell, isCompleted: isCompleted)
-		// передаем изменения в БД Firebase
-		task.ref?.updateChildValues(["completed": isCompleted])
-	}
+//	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//
+////		if mode == .editing {
+////			footerView.onAddBttnClick(nil)
+////			return
+////		}
+//
+//		// получаем ячейку по которой кликнули
+//		guard let cell = tableView_user.cellForRow(at: indexPath) else {
+//			return
+//		}
+//
+//		let task = tasks[indexPath.row]
+//		let isCompleted = !task.completed
+//
+//		// рисуем галочку
+////		toggleComplete(cell, isCompleted: isCompleted)
+//		// передаем изменения в БД Firebase
+//		task.ref?.updateChildValues(["completed": isCompleted])
+//	}
 	
 	
 	
@@ -378,7 +374,7 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 		// картинка кнопки
 		let imSize = CGSize(width: 14, height: 16)
 		let myImage = UIImageView(frame: CGRect(origin: CGPoint(x: backView.frame.midX - imSize.width/2, y: backView.frame.midY - imSize.height/2 + 5), size: imSize))
-		myImage.image = #imageLiteral(resourceName: "firebase_logo")
+		myImage.image = #imageLiteral(resourceName: "bttn_del")
 		backView.addSubview(myImage)
 		
 		// надпись кнопки
@@ -456,7 +452,6 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 	//   Настройки футера  *
 	//**********************
 	func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-
 		return drawFooter()
 	}
 
@@ -484,15 +479,12 @@ class TasksView: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
 	
 	// устраняет верхний отступ таблицы, появившийся после установки стиля таблицы на group
-	func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-		return CGFloat.leastNormalMagnitude
-	}
+//	func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//		return CGFloat.leastNormalMagnitude
+//	}
 	
 	
 
-
-	
-	
 	
 	
 	
